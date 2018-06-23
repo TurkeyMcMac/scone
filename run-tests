@@ -1,0 +1,26 @@
+#! /bin/sh
+
+color_echo() {
+	color=$1
+	shift
+	echo "\e[${color}m$*\e[0m"
+}
+
+run_test() {
+	echo Testing $1
+	$1
+	status=$?
+	if [ $status -ne 0 ]; then
+		color_echo 31 Test $1 failed with status $status.
+		exit 2
+	fi
+}
+
+if ! make build-tests; then
+	color_echo 33 Test compilation failed.
+	exit 1
+fi
+
+for t in `ls -1 tests/* | sed 's/.\+\.c//g; T; d'`; do
+	run_test $t
+done

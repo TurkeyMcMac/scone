@@ -1,0 +1,15 @@
+# BAD_KEY
+keey = _
+= _
+	 = _
+
+# NO_VALUE
+key
+key =
+key = # Comment
+
+# LONG_KEY
+keeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeey = _
+
+# LONG_VALUE
+key = ______

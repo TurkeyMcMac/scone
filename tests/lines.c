@@ -19,13 +19,13 @@ CREATE_TEST("lines", conf)
 	size_t i;
 
 	scone_read(conf, &keynum, value, &valsize);
-	assert(conf->line == 1);
-	scone_read(conf, &keynum, value, &valsize);
 	assert(conf->line == 2);
 	scone_read(conf, &keynum, value, &valsize);
-	assert(conf->line == 4);
+	assert(conf->line == 3);
 	scone_read(conf, &keynum, value, &valsize);
-	assert(conf->line == 6);
+	assert(conf->line == 5);
+	scone_read(conf, &keynum, value, &valsize);
+	assert(conf->line == 7);
 
 	assert(scone_read(conf, &keynum, value, &valsize) == SCONE_DONE);
 }

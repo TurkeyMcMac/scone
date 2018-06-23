@@ -21,6 +21,6 @@ if ! make build-tests; then
 	exit 1
 fi
 
-for t in `ls -1 tests/* | sed 's/.\+\.c//g; T; d'`; do
+for t in `ls -1 tests/* | sed 's/.\+\..\+//g; T; d'`; do
 	run_test $t
 done

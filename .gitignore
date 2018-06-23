@@ -1,4 +1,4 @@
 scone.o
 libscone.so
 tests/*
-!tests/*.c
+!tests/*.*

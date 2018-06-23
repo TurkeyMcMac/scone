@@ -8,6 +8,7 @@ int scone_open(struct scone *self, const char *name)
 	if (!self->file)
 		return -errno;
 	self->line = 0;
+	return 0;
 }
 
 static int skip_line(FILE *self, int *ret);

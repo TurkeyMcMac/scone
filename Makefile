@@ -11,5 +11,5 @@ scone.o: scone.c scone.h
 
 build-tests: $(tests)
 
-tests/%: tests/%.c $(lib-name)
-	$(CC) $(CFLAGS) -I. -L. -o $@ $< -lscone
+tests/%: tests/%.c test-template.h $(lib-name)
+	$(CC) $(CFLAGS) -I. -L. -o $@ $< -l:./libscone.so

@@ -5,7 +5,6 @@
 #define _SCONE_STRUCT
 struct scone {
 	FILE *file;
-	const char *name;
 	const char *const *keys;
 	char *keybuf;
 	size_t valsize_max, keysize_max;

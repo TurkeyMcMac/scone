@@ -7,7 +7,6 @@ int scone_open(struct scone *self, const char *name)
 	self->file = fopen(name, "r");
 	if (!self->file)
 		return -errno;
-	self->name = name;
 	self->line = 0;
 }
 

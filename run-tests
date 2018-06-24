@@ -20,8 +20,8 @@ run_test() {
 	fi
 }
 
-if ! make build-tests; then
-	color_echo 33 Test compilation failed.
+if ! make || ! make build-tests; then
+	color_echo '30;43' Test compilation failed.
 	exit 255
 fi
 

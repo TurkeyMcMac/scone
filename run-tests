@@ -6,12 +6,15 @@ color_echo() {
 	echo "\e[${color}m$*\e[0m"
 }
 
+test_failures=0
+
 run_test() {
 	color_echo 36 Testing \`$1\'
 	$1
 	status=$?
 	if [ $status -ne 0 ]; then
 		color_echo 31 Test \`$1\' failed with status $status.
+		test_failures=$((test_failures+1))
 	else
 		color_echo 32 Test \`$1\' succeeded.
 	fi
@@ -19,9 +22,17 @@ run_test() {
 
 if ! make build-tests; then
 	color_echo 33 Test compilation failed.
-	exit 1
+	exit 255
 fi
 
 for t in `ls -1 tests/* | sed 's/.\+\..\+//g; T; d'`; do
 	run_test $t
 done
+
+if [ $test_failures -eq 0 ]; then
+	color_echo '30;42' All tests succeeded.
+else
+	color_echo '30;41' $test_failures tests failed.
+fi
+
+exit $test_failures

@@ -11,16 +11,15 @@ int scone_open(struct scone *self, const char *name)
 	return 0;
 }
 
-static int skip_line(FILE *self, int *ret);
+static int skip_line(FILE *self);
 static int eof_retval(FILE *file);
 static int parse_pair(struct scone *self,
 	int first_ch,
 	size_t *key,
-	char *value, size_t *valsize,
-	int *ret);
+	char *value, size_t *valsize);
 int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 {
-	int ch, ret = 0;
+	int ch;
 	while (1) {
 		switch(ch = fgetc(self->file)) {
 		case '\n':
@@ -30,8 +29,8 @@ int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 		case '\t':
 			continue;
 		case SCONE_COMMENT:
-			if (skip_line(self->file, &ret))
-				return ret;
+			if (skip_line(self->file))
+				return eof_retval(self->file);
 			else {
 				++self->line;
 				continue;
@@ -40,12 +39,11 @@ int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 			return eof_retval(self->file);
 		case SCONE_BINDING:
 			++self->line;
-			skip_line(self->file, &ret);
+			skip_line(self->file);
 			return SCONE_BAD_KEY;
 		default:
 			++self->line;
-			parse_pair(self, ch, key, value, valsize, &ret);
-			return ret;
+			return parse_pair(self, ch, key, value, valsize);
 		}
 	}
 	return 0;
@@ -58,16 +56,14 @@ int scone_close(struct scone *self)
 	return 0;
 }
 
-static int skip_line(FILE *file, int *ret)
+static int skip_line(FILE *file)
 {
 	while (1) {
 		switch(fgetc(file)) {
 		case '\n':
-			*ret = 0;
 			return 0;
 		case EOF:
-			*ret = eof_retval(file);
-			return 1;
+			return -1;
 		default:
 			continue;
 		}
@@ -114,8 +110,7 @@ static size_t binary_search(const char *str, size_t len,
 static int parse_pair(struct scone *self,
 	int first_ch,
 	size_t *key,
-	char *value, size_t *valsize,
-	int *ret)
+	char *value, size_t *valsize)
 {
 	size_t i, key_len = 0;
 	int ch;
@@ -128,7 +123,7 @@ static int parse_pair(struct scone *self,
 			else
 				goto err_no_value;
 		case SCONE_COMMENT:
-			skip_line(self->file, ret);
+			skip_line(self->file);
 		case '\n':
 			goto err_no_value;
 		case SCONE_BINDING:
@@ -154,13 +149,12 @@ static int parse_pair(struct scone *self,
 			else
 				goto err_no_value;
 		case SCONE_COMMENT:
-			skip_line(self->file, ret);
+			skip_line(self->file);
 		case '\n':
 			goto err_no_value;
 		default:
-			skip_line(self->file, ret);
-			*ret = SCONE_LONG_KEY;
-			return 1;
+			skip_line(self->file);
+			return SCONE_LONG_KEY;
 		}
 	}
 find_value:
@@ -175,7 +169,7 @@ find_value:
 			else
 				goto err_no_value;
 		case SCONE_COMMENT:
-			skip_line(self->file, ret);
+			skip_line(self->file);
 		case '\n':
 			goto err_no_value;
 		default:
@@ -191,7 +185,7 @@ parse_value:
 			else
 				goto match_key;
 		case SCONE_COMMENT:
-			skip_line(self->file, ret);
+			skip_line(self->file);
 		case '\n':
 			goto match_key;
 		default:
@@ -209,17 +203,17 @@ parse_value:
 		case '\t':
 			break;
 		case EOF:
-			if (!feof(self->file))
+			if (feof(self->file))
+				goto match_key;
+			else
 				goto err_io;
+		case SCONE_COMMENT:
+			skip_line(self->file);
 		case '\n':
 			goto match_key;
-		case SCONE_COMMENT:
-			skip_line(self->file, ret);
-			goto match_key;
 		default:
-			skip_line(self->file, ret);
-			*ret = SCONE_LONG_VALUE;
-			return 1;
+			skip_line(self->file);
+			return SCONE_LONG_VALUE;
 		}
 		ch = fgetc(self->file);
 	}
@@ -229,17 +223,14 @@ match_key:
 		goto err_bad_key;
 	else
 		*key = i;
-	return 1;
+	return 0;
 
 err_bad_key:
-	*ret = SCONE_BAD_KEY;
-	return 1;
+	return SCONE_BAD_KEY;
 
 err_io:
-	*ret = -errno;
-	return 1;
+	return -errno;
 
 err_no_value:
-	*ret = SCONE_NO_VALUE;
-	return 1;
+	return SCONE_NO_VALUE;
 }

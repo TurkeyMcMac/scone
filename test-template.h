@@ -1,6 +1,16 @@
+/* This file is intended for use by tests to decrease redundancy in the test
+ * code. the integers KEYSIZE_MAX, VALSIZE_MAX, and N_KEYS, the array keys must
+ * be present for this template to work. */
+
 #include <assert.h>
 #include <scone.h>
 
+/* Declare a function to run in the tests. The user is left to fill in the body.
+ * Arguments:
+ * 	name: The name of the test. The string given will be concatenated in the
+ * 		sequence "tests/" name ".scone", and will be opened in the test.
+ * 	conf_: The name of the argument to the function which will be declared.
+ */
 #define CREATE_TEST(name, conf_)				\
 static void test_config(struct scone *);			\
 int main(void)							\

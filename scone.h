@@ -30,6 +30,9 @@ struct scone {
 	 * value is undefined before any read()s have taken place.
 	 * This field can be read, but not written. */
 	unsigned line;
+	/* Scratch space used internally during reading.
+	 * This value should neither be read nor written. */
+	unsigned move_down;
 };
 #endif /* !defined(_SCONE_STRUCT) */
 

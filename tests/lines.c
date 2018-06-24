@@ -24,9 +24,9 @@ CREATE_TEST("lines", conf)
 	scone_read(conf, &keynum, value, &valsize);
 	assert(conf->line == 3);
 	scone_read(conf, &keynum, value, &valsize);
-	assert(conf->line == 5);
+	assert(conf->line == 6);
 	scone_read(conf, &keynum, value, &valsize);
-	assert(conf->line == 7);
+	assert(conf->line == 8);
 
 	assert(scone_read(conf, &keynum, value, &valsize) == SCONE_DONE);
 }

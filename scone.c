@@ -7,14 +7,15 @@ int scone_open(struct scone *self, const char *name)
 	self->file = fopen(name, "r");
 	if (!self->file)
 		return -errno;
-	self->line = 0;
+	self->line = 1;
+	self->move_down = 0;
 	return 0;
 }
 
 /* This matches both spaces and tabs in switch blocks. */
 #define ANY_WHITESPACE ' ': case '\t'
 
-static int skip_line(struct scone *self);
+static int skip_line(FILE *file, unsigned *line);
 static int eof_retval(FILE *file);
 static int parse_pair(struct scone *self,
 	int first_ch,
@@ -24,7 +25,6 @@ static int escape_char(struct scone *self);
 int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 {
 	int ch;
-	*valsize = 0;
 	while (1) {
 		switch(ch = fgetc(self->file)) {
 		case '\n':
@@ -33,20 +33,18 @@ int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 		case ANY_WHITESPACE:
 			continue;
 		case SCONE_COMMENT:
-			if (skip_line(self))
+			if (skip_line(self->file, &self->line))
 				return eof_retval(self->file);
-			else {
-				++self->line;
+			else
 				continue;
-			}
 		case EOF:
 			return eof_retval(self->file);
 		case SCONE_BINDING:
-			++self->line;
-			skip_line(self);
+			skip_line(self->file, &self->line);
 			return SCONE_BAD_KEY;
 		default:
-			++self->line;
+			self->line += self->move_down;
+			*valsize = 0;
 			return parse_pair(self, ch, key, value, valsize);
 		}
 	}
@@ -60,15 +58,16 @@ int scone_close(struct scone *self)
 	return 0;
 }
 
-static int skip_line(struct scone *self)
+static int skip_line(FILE *file, unsigned *line)
 {
 	while (1) {
-		switch(fgetc(self->file)) {
+		switch(fgetc(file)) {
 		case SCONE_ESCAPE:
-			(void)fgetc(self->file);
-			++self->line;
+			(void)fgetc(file);
+			++*line;
 			continue;
 		case '\n':
+			++*line;
 			return 0;
 		case EOF:
 			return -1;
@@ -122,6 +121,7 @@ static int parse_pair(struct scone *self,
 {
 	size_t i, key_len = 0;
 	int ch = first_ch;
+	self->move_down = 0;
 	for (i = 0; i < self->keysize_max; ch = fgetc(self->file)) {
 		switch (ch) {
 		case EOF:
@@ -130,9 +130,10 @@ static int parse_pair(struct scone *self,
 			else
 				goto err_no_value;
 		case SCONE_COMMENT:
-			skip_line(self);
-			/* Fallthrough */
+			skip_line(self->file, &self->move_down);
+			goto err_no_value;
 		case '\n':
+			++self->move_down;
 			goto err_no_value;
 		case SCONE_BINDING:
 			goto find_value;
@@ -162,9 +163,10 @@ static int parse_pair(struct scone *self,
 			else
 				goto err_no_value;
 		case SCONE_COMMENT:
-			skip_line(self);
-			/* Fallthrough */
+			skip_line(self->file, &self->move_down);
+			goto err_no_value;
 		case '\n':
+			++self->move_down;
 			goto err_no_value;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
@@ -172,7 +174,7 @@ static int parse_pair(struct scone *self,
 				break;
 			/* Fallthrough */
 		default:
-			skip_line(self);
+			skip_line(self->file, &self->move_down);
 			goto err_long_key;
 		}
 		ch = fgetc(self->file);
@@ -189,9 +191,10 @@ find_value:
 			else
 				goto err_no_value;
 		case SCONE_COMMENT:
-			skip_line(self);
-			/* Fallthrough */
+			skip_line(self->file, &self->move_down);
+			goto err_no_value;
 		case '\n':
+			++self->move_down;
 			goto err_no_value;
 		case SCONE_ESCAPE:
 			first_ch = escape_char(self);
@@ -218,9 +221,10 @@ parse_value:
 			else
 				goto match_key;
 		case SCONE_COMMENT:
-			skip_line(self);
-			/* Fallthrough */
+			skip_line(self->file, &self->move_down);
+			goto match_key;
 		case '\n':
+			++self->move_down;
 			goto match_key;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
@@ -244,9 +248,10 @@ parse_value:
 			else
 				goto err_io;
 		case SCONE_COMMENT:
-			skip_line(self);
-			/* Fallthrough */
+			skip_line(self->file, &self->move_down);
+			goto match_key;
 		case '\n':
+			++self->move_down;
 			goto match_key;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
@@ -254,7 +259,7 @@ parse_value:
 				break;
 			/* Fallthrough */
 		default:
-			skip_line(self);
+			skip_line(self->file, &self->move_down);
 			goto err_long_value;
 		}
 		ch = fgetc(self->file);
@@ -304,7 +309,7 @@ static int escape_char(struct scone *self)
 	case 'v':
 		return '\v';
 	case '\n':
-		++self->line;
+		++self->move_down;
 		return '\0';
 	default:
 		return ch;

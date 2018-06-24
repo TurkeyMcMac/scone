@@ -15,5 +15,6 @@ build-tests: $(tests)
 tests/%: tests/%.c test-template.h $(lib-name)
 	$(CC) $(flags) -I. -L. -o $@ $< -l:./$(lib-name)
 
+.PHONY: clean
 clean:
 	$(RM) scone.o $(lib-name) $(tests)

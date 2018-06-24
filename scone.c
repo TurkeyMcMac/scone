@@ -37,6 +37,10 @@ int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 			}
 		case EOF:
 			return eof_retval(self->file);
+		case SCONE_BINDING:
+			++self->line;
+			skip_line(self->file, &ret);
+			return SCONE_BAD_KEY;
 		default:
 			++self->line;
 			parse_pair(self, ch, key, value, valsize, &ret);
@@ -77,16 +81,13 @@ static int eof_retval(FILE *file)
 static int compare_key(const char *key, const char *str, size_t len)
 {
 	size_t i;
-	//printf("comparing %.*s to %s\n", len, key, str);
 	for (i = 0; i < len; ++i) {
 		char kc = key[i], sc = str[i];
-		//printf("'%c' <=> '%c'\n", kc, sc);
 		if (kc > sc)
 			return 1;
 		else if (kc < sc)
 			return -1;
 	}
-	//printf("length done, str[%lu] == %d\n", i, str[i]);
 	return -(str[i] != '\0');
 }
 static size_t binary_search(const char *str, size_t len,
@@ -95,7 +96,6 @@ static size_t binary_search(const char *str, size_t len,
 	size_t min, mid, max;
 	min = 0;
 	max = n_items;
-	//printf("binary search\n");
 	while (min < max) {
 		int cmp;
 		mid = (min + max) / 2;
@@ -123,6 +123,10 @@ static int parse_pair(struct scone *self,
 		case EOF:
 			if (!feof(self->file))
 				goto err_io;
+			else
+				goto err_no_value;
+		case SCONE_COMMENT:
+			skip_line(self->file, ret);
 		case '\n':
 			goto err_no_value;
 		case SCONE_BINDING:
@@ -145,6 +149,10 @@ static int parse_pair(struct scone *self,
 		case EOF:
 			if (!feof(self->file))
 				goto err_io;
+			else
+				goto err_no_value;
+		case SCONE_COMMENT:
+			skip_line(self->file, ret);
 		case '\n':
 			goto err_no_value;
 		default:
@@ -154,7 +162,6 @@ static int parse_pair(struct scone *self,
 		}
 	}
 find_value:
-	//printf("key_len: %lu\n", key_len);
 	while (1) {
 		switch (first_ch = fgetc(self->file)) {
 		case ' ':
@@ -163,6 +170,10 @@ find_value:
 		case EOF:
 			if (!feof(self->file))
 				goto err_io;
+			else
+				goto err_no_value;
+		case SCONE_COMMENT:
+			skip_line(self->file, ret);
 		case '\n':
 			goto err_no_value;
 		default:
@@ -175,10 +186,11 @@ parse_value:
 		case EOF:
 			if (!feof(self->file))
 				goto err_io;
-		case '\n':
-			goto match_key;
+			else
+				goto match_key;
 		case SCONE_COMMENT:
 			skip_line(self->file, ret);
+		case '\n':
 			goto match_key;
 		default:
 			*valsize = i + 1;
@@ -211,11 +223,14 @@ parse_value:
 	}
 match_key:
 	i = binary_search(self->keybuf, key_len, self->keys, self->n_keys);
-	if (i == -1) {
-		*ret = SCONE_BAD_KEY;
-	} else {
+	if (i == -1)
+		goto err_bad_key;
+	else
 		*key = i;
-	}
+	return 1;
+
+err_bad_key:
+	*ret = SCONE_BAD_KEY;
 	return 1;
 
 err_io:

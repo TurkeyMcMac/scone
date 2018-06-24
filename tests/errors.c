@@ -1,13 +1,12 @@
 #include <test-template.h>
 
-#define KEYSIZE_MAX 35
+#define KEYSIZE_MAX 4
 #define VALSIZE_MAX 1
 
-#define N_KEYS 2
+#define N_KEYS 1
 
 const char *const keys[] = {
-	"key",
-	"keeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeey"
+	"key"
 };
 
 CREATE_TEST("errors", conf)
@@ -21,7 +20,7 @@ CREATE_TEST("errors", conf)
 		assert(scone_read(conf, &keynum, value, &valsize)
 			== SCONE_BAD_KEY);
 	/* NO_VALUE */
-	for (i = 0; i < 3; ++i)
+	for (i = 0; i < 9; ++i)
 		assert(scone_read(conf, &keynum, value, &valsize)
 			== SCONE_NO_VALUE);
 	/* LONG_KEY */
@@ -31,21 +30,3 @@ CREATE_TEST("errors", conf)
 
 	assert(scone_read(conf, &keynum, value, &valsize) == SCONE_DONE);
 }
-/*
-# BAD_KEY
-keey = _
-= _
-	 = _
-
-# NO_VALUE
-key
-key =
-key = # Comment
-
-# LONG_KEY
-keeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeey = _
-
-# LONG_VALUE
-key = ______
-
-*/

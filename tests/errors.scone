@@ -5,8 +5,14 @@ keey = _
 
 # NO_VALUE
 key
+key  
 key =
+key =  
+key =# Comment
 key = # Comment
+key# Comment = _
+key # Comment = _
+k# Comment = _
 
 # LONG_KEY
 keeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeey = _

@@ -12,4 +12,4 @@ scone.o: scone.c scone.h
 build-tests: $(tests)
 
 tests/%: tests/%.c test-template.h $(lib-name)
-	$(CC) $(CFLAGS) -I. -L. -o $@ $< -l:./libscone.so
+	$(CC) $(CFLAGS) -I. -L. -o $@ $< -l:./$(lib-name)

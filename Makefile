@@ -1,5 +1,5 @@
 name = scone
-version = 0.0.0
+version = $(shell cat version)
 lib-name = lib$(name).so.$(version)
 flags = -ansi -Wall -Wextra -Wpedantic $(CFLAGS)
 optimize = 3

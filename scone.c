@@ -11,6 +11,9 @@ int scone_open(struct scone *self, const char *name)
 	return 0;
 }
 
+/* This matches both spaces and tabs in switch blocks. */
+#define ANY_WHITESPACE ' ': case '\t'
+
 static int skip_line(FILE *self);
 static int eof_retval(FILE *file);
 static int parse_pair(struct scone *self,
@@ -25,8 +28,7 @@ int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 		case '\n':
 			++self->line;
 			continue;
-		case ' ':
-		case '\t':
+		case ANY_WHITESPACE:
 			continue;
 		case SCONE_COMMENT:
 			if (skip_line(self->file))
@@ -128,10 +130,10 @@ static int parse_pair(struct scone *self,
 			goto err_no_value;
 		case SCONE_BINDING:
 			goto find_value;
+		case ANY_WHITESPACE:
+			break;
 		default:
 			key_len = i + 1;
-		case ' ':
-		case '\t':
 			break;
 		}
 		self->keybuf[i] = ch;
@@ -140,8 +142,7 @@ static int parse_pair(struct scone *self,
 		switch (fgetc(self->file)) {
 		case SCONE_BINDING:
 			goto find_value;
-		case ' ':
-		case '\t':
+		case ANY_WHITESPACE:
 			continue;
 		case EOF:
 			if (!feof(self->file))
@@ -154,14 +155,13 @@ static int parse_pair(struct scone *self,
 			goto err_no_value;
 		default:
 			skip_line(self->file);
-			return SCONE_LONG_KEY;
+			goto err_long_key;
 		}
 	}
 find_value:
 	while (1) {
 		switch (first_ch = fgetc(self->file)) {
-		case ' ':
-		case '\t':
+		case ANY_WHITESPACE:
 			continue;
 		case EOF:
 			if (!feof(self->file))
@@ -190,8 +190,7 @@ parse_value:
 			goto match_key;
 		default:
 			*valsize = i + 1;
-		case ' ':
-		case '\t':
+		case ANY_WHITESPACE:
 			break;
 		}
 		value[i] = ch;
@@ -199,8 +198,7 @@ parse_value:
 	}
 	while (1) {
 		switch (ch) {
-		case ' ':
-		case '\t':
+		case ANY_WHITESPACE:
 			break;
 		case EOF:
 			if (feof(self->file))
@@ -213,7 +211,7 @@ parse_value:
 			goto match_key;
 		default:
 			skip_line(self->file);
-			return SCONE_LONG_VALUE;
+			goto err_long_value;
 		}
 		ch = fgetc(self->file);
 	}
@@ -231,6 +229,12 @@ err_bad_key:
 err_io:
 	return -errno;
 
+err_long_key:
+	return SCONE_LONG_KEY;
+
 err_no_value:
 	return SCONE_NO_VALUE;
+
+err_long_value:
+	return SCONE_LONG_VALUE;
 }

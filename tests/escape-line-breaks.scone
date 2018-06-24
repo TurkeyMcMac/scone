@@ -1,0 +1,15 @@
+key = \
+value
+
+key \
+= value
+
+ke\
+y = value
+
+key = va\
+lue
+
+#Comment \
+ Comment \
+ Comment

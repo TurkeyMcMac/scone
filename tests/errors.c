@@ -22,7 +22,7 @@ CREATE_TEST("errors", conf)
 		assert(scone_read(conf, &keynum, value, &valsize)
 			== SCONE_BAD_KEY);
 	/* NO_VALUE */
-	for (i = 0; i < 9; ++i)
+	for (i = 0; i < 10; ++i)
 		assert(scone_read(conf, &keynum, value, &valsize)
 			== SCONE_NO_VALUE);
 	/* LONG_KEY */

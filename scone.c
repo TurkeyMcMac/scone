@@ -14,15 +14,17 @@ int scone_open(struct scone *self, const char *name)
 /* This matches both spaces and tabs in switch blocks. */
 #define ANY_WHITESPACE ' ': case '\t'
 
-static int skip_line(FILE *self);
+static int skip_line(struct scone *self);
 static int eof_retval(FILE *file);
 static int parse_pair(struct scone *self,
 	int first_ch,
 	size_t *key,
 	char *value, size_t *valsize);
+static int escape_char(struct scone *self);
 int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 {
 	int ch;
+	*valsize = 0;
 	while (1) {
 		switch(ch = fgetc(self->file)) {
 		case '\n':
@@ -31,7 +33,7 @@ int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 		case ANY_WHITESPACE:
 			continue;
 		case SCONE_COMMENT:
-			if (skip_line(self->file))
+			if (skip_line(self))
 				return eof_retval(self->file);
 			else {
 				++self->line;
@@ -41,7 +43,7 @@ int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 			return eof_retval(self->file);
 		case SCONE_BINDING:
 			++self->line;
-			skip_line(self->file);
+			skip_line(self);
 			return SCONE_BAD_KEY;
 		default:
 			++self->line;
@@ -58,10 +60,14 @@ int scone_close(struct scone *self)
 	return 0;
 }
 
-static int skip_line(FILE *file)
+static int skip_line(struct scone *self)
 {
 	while (1) {
-		switch(fgetc(file)) {
+		switch(fgetc(self->file)) {
+		case SCONE_ESCAPE:
+			(void)fgetc(self->file);
+			++self->line;
+			continue;
 		case '\n':
 			return 0;
 		case EOF:
@@ -115,82 +121,110 @@ static int parse_pair(struct scone *self,
 	char *value, size_t *valsize)
 {
 	size_t i, key_len = 0;
-	int ch;
-	self->keybuf[0] = first_ch;
-	for (i = 1; i < self->keysize_max; ++i) {
-		switch (ch = fgetc(self->file)) {
+	int ch = first_ch;
+	for (i = 0; i < self->keysize_max; ++i) {
+		switch (ch) {
 		case EOF:
 			if (!feof(self->file))
 				goto err_io;
 			else
 				goto err_no_value;
 		case SCONE_COMMENT:
-			skip_line(self->file);
+			skip_line(self);
 		case '\n':
 			goto err_no_value;
 		case SCONE_BINDING:
 			goto find_value;
 		case ANY_WHITESPACE:
 			break;
+		case SCONE_ESCAPE:
+			ch = escape_char(self);
+			if (!ch) {
+				ch = fgetc(self->file);
+				--i;
+				continue;
+			}
 		default:
 			key_len = i + 1;
 			break;
 		}
 		self->keybuf[i] = ch;
+		ch = fgetc(self->file);
 	}
 	while (1) {
-		switch (fgetc(self->file)) {
+		switch (ch) {
 		case SCONE_BINDING:
 			goto find_value;
 		case ANY_WHITESPACE:
-			continue;
+			break;
 		case EOF:
 			if (!feof(self->file))
 				goto err_io;
 			else
 				goto err_no_value;
 		case SCONE_COMMENT:
-			skip_line(self->file);
+			skip_line(self);
 		case '\n':
 			goto err_no_value;
+		case SCONE_ESCAPE:
+			ch = escape_char(self);
+			if (!ch)
+				break;
 		default:
-			skip_line(self->file);
+			skip_line(self);
 			goto err_long_key;
 		}
+		ch = fgetc(self->file);
 	}
 find_value:
+	first_ch = fgetc(self->file);
 	while (1) {
-		switch (first_ch = fgetc(self->file)) {
+		switch (first_ch) {
 		case ANY_WHITESPACE:
-			continue;
+			break;
 		case EOF:
 			if (!feof(self->file))
 				goto err_io;
 			else
 				goto err_no_value;
 		case SCONE_COMMENT:
-			skip_line(self->file);
+			skip_line(self);
 		case '\n':
 			goto err_no_value;
+		case SCONE_ESCAPE:
+			first_ch = escape_char(self);
+			if (!first_ch)
+				break;
 		default:
 			goto parse_value;
 		}
+		first_ch = fgetc(self->file);
 	}
 parse_value:
-	for (i = 0, ch = first_ch; i < self->valsize_max; ++i) {
+	value[0] = first_ch;
+	*valsize = 1;
+	for (i = 1, ch = fgetc(self->file); i < self->valsize_max; ++i) {
 		switch (ch) {
+		case ANY_WHITESPACE:
+			break;
 		case EOF:
 			if (!feof(self->file))
 				goto err_io;
 			else
 				goto match_key;
 		case SCONE_COMMENT:
-			skip_line(self->file);
+			skip_line(self);
 		case '\n':
 			goto match_key;
+		case SCONE_ESCAPE:
+			ch = escape_char(self);
+			if (!ch) {
+				ch = fgetc(self->file);
+				--i;
+				continue;
+			}
 		default:
 			*valsize = i + 1;
-		case ANY_WHITESPACE:
 			break;
 		}
 		value[i] = ch;
@@ -206,11 +240,15 @@ parse_value:
 			else
 				goto err_io;
 		case SCONE_COMMENT:
-			skip_line(self->file);
+			skip_line(self);
 		case '\n':
 			goto match_key;
+		case SCONE_ESCAPE:
+			ch = escape_char(self);
+			if (!ch)
+				break;
 		default:
-			skip_line(self->file);
+			skip_line(self);
 			goto err_long_value;
 		}
 		ch = fgetc(self->file);
@@ -237,4 +275,32 @@ err_no_value:
 
 err_long_value:
 	return SCONE_LONG_VALUE;
+}
+
+static int escape_char(struct scone *self)
+{
+	int ch;
+	switch (ch = fgetc(self->file)) {
+	case 'a':
+		return '\a';
+	case 'b':
+		return '\b';
+	case 'e':
+		return '\x1B';
+	case 'f':
+		return '\f';
+	case 'n':
+		return '\n';
+	case 'r':
+		return '\r';
+	case 't':
+		return '\t';
+	case 'v':
+		return '\v';
+	case '\n':
+		++self->line;
+		return '\0';
+	default:
+		return ch;
+	}
 }

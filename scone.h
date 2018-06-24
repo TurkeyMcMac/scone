@@ -33,11 +33,13 @@ struct scone {
 };
 #endif /* !defined(_SCONE_STRUCT) */
 
+/* The character between a key and a value which binds them together. */
+#define SCONE_BINDING '='
 /* The character which begins a comment. The comment will extend from this
  * character to the end of the line. */
 #define SCONE_COMMENT '#'
-/* The character between a key and a value which binds them together. */
-#define SCONE_BINDING '='
+/* The character to begin an escape sequence such as '\n'. */
+#define SCONE_ESCAPE '\\'
 
 /* Initialize the file and line fields in a scone. All other fields should be
  * initialized manually.

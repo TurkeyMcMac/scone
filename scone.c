@@ -122,7 +122,7 @@ static int parse_pair(struct scone *self,
 {
 	size_t i, key_len = 0;
 	int ch = first_ch;
-	for (i = 0; i < self->keysize_max; ++i) {
+	for (i = 0; i < self->keysize_max; ch = fgetc(self->file)) {
 		switch (ch) {
 		case EOF:
 			if (!feof(self->file))
@@ -131,6 +131,7 @@ static int parse_pair(struct scone *self,
 				goto err_no_value;
 		case SCONE_COMMENT:
 			skip_line(self);
+			/* Fallthrough */
 		case '\n':
 			goto err_no_value;
 		case SCONE_BINDING:
@@ -139,17 +140,15 @@ static int parse_pair(struct scone *self,
 			break;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
-			if (!ch) {
-				ch = fgetc(self->file);
-				--i;
+			if (!ch)
 				continue;
-			}
+			/* Fallthrough */
 		default:
 			key_len = i + 1;
 			break;
 		}
 		self->keybuf[i] = ch;
-		ch = fgetc(self->file);
+		++i;
 	}
 	while (1) {
 		switch (ch) {
@@ -164,12 +163,14 @@ static int parse_pair(struct scone *self,
 				goto err_no_value;
 		case SCONE_COMMENT:
 			skip_line(self);
+			/* Fallthrough */
 		case '\n':
 			goto err_no_value;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
 			if (!ch)
 				break;
+			/* Fallthrough */
 		default:
 			skip_line(self);
 			goto err_long_key;
@@ -189,12 +190,14 @@ find_value:
 				goto err_no_value;
 		case SCONE_COMMENT:
 			skip_line(self);
+			/* Fallthrough */
 		case '\n':
 			goto err_no_value;
 		case SCONE_ESCAPE:
 			first_ch = escape_char(self);
 			if (!first_ch)
 				break;
+			/* Fallthrough */
 		default:
 			goto parse_value;
 		}
@@ -203,7 +206,9 @@ find_value:
 parse_value:
 	value[0] = first_ch;
 	*valsize = 1;
-	for (i = 1, ch = fgetc(self->file); i < self->valsize_max; ++i) {
+	for (i = 1, ch = fgetc(self->file); i < self->valsize_max;
+		ch = fgetc(self->file))
+	{
 		switch (ch) {
 		case ANY_WHITESPACE:
 			break;
@@ -214,21 +219,20 @@ parse_value:
 				goto match_key;
 		case SCONE_COMMENT:
 			skip_line(self);
+			/* Fallthrough */
 		case '\n':
 			goto match_key;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
-			if (!ch) {
-				ch = fgetc(self->file);
-				--i;
+			if (!ch)
 				continue;
-			}
+			/* Fallthrough */
 		default:
 			*valsize = i + 1;
 			break;
 		}
 		value[i] = ch;
-		ch = fgetc(self->file);
+		++i;
 	}
 	while (1) {
 		switch (ch) {
@@ -241,12 +245,14 @@ parse_value:
 				goto err_io;
 		case SCONE_COMMENT:
 			skip_line(self);
+			/* Fallthrough */
 		case '\n':
 			goto match_key;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
 			if (!ch)
 				break;
+			/* Fallthrough */
 		default:
 			skip_line(self);
 			goto err_long_value;

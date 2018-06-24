@@ -1,5 +1,6 @@
 name = scone
-lib-name = lib$(name).so
+version = 0.0.0
+lib-name = lib$(name).so.$(version)
 flags = -ansi -Wall -Wextra -Wpedantic $(CFLAGS)
 optimize = 3
 tests = $(patsubst %.c, %, $(wildcard tests/*.c))

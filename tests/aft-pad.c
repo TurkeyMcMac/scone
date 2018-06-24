@@ -1,3 +1,5 @@
+/* Test that padding after the value is ignored. */
+
 #include <test-template.h>
 
 #define KEYSIZE_MAX 3

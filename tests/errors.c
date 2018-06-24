@@ -1,3 +1,5 @@
+/* Test that the right errors are thrown at the right times. */
+
 #include <test-template.h>
 
 #define KEYSIZE_MAX 4

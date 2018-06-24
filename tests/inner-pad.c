@@ -1,3 +1,6 @@
+/* Test that padding between the strings and the binding character is ignored.
+ */
+
 #include <test-template.h>
 
 #define KEYSIZE_MAX 3

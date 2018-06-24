@@ -1,3 +1,5 @@
+/* Test that whitespace within strings is preserved. */
+
 #include <test-template.h>
 
 #define KEYSIZE_MAX 7

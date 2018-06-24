@@ -1,3 +1,5 @@
+/* Test that lines are counted properly. */
+
 #include <test-template.h>
 
 #define KEYSIZE_MAX 5

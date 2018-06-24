@@ -1,3 +1,5 @@
+/* Test that whitespace before a key is ignored. */
+
 #include <test-template.h>
 
 #define KEYSIZE_MAX 5

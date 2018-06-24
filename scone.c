@@ -25,6 +25,7 @@ int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 		switch(ch = fgetc(self->file)) {
 		case '\n':
 			++self->line;
+			continue;
 		case ' ':
 		case '\t':
 			continue;
@@ -54,6 +55,7 @@ int scone_close(struct scone *self)
 {
 	if (fclose(self->file))
 		return -errno;
+	return 0;
 }
 
 static int skip_line(FILE *file, int *ret)
@@ -223,7 +225,7 @@ parse_value:
 	}
 match_key:
 	i = binary_search(self->keybuf, key_len, self->keys, self->n_keys);
-	if (i == -1)
+	if (i == (size_t)-1)
 		goto err_bad_key;
 	else
 		*key = i;

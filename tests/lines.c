@@ -16,7 +16,6 @@ CREATE_TEST("lines", conf)
 {
 	char value[VALSIZE_MAX + 1];
 	size_t keynum, valsize;
-	size_t i;
 
 	scone_read(conf, &keynum, value, &valsize);
 	assert(conf->line == 2);

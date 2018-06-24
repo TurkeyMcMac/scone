@@ -17,5 +17,6 @@ int main(void)							\
 	assert(scone_open(&conf, "tests/"name".scone") == 0);	\
 	test_config(&conf);					\
 	assert(scone_close(&conf) == 0);			\
+	return 0;						\
 }								\
 static void test_config(struct scone *conf_)

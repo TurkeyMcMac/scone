@@ -1,15 +1,16 @@
 name = scone
 lib-name = lib$(name).so
+flags = -ansi -Wall -Wextra -Wpedantic $(CFLAGS)
 optimize = 3
 tests = $(patsubst %.c, %, $(wildcard tests/*.c))
 
 $(lib-name): scone.o
-	$(CC) $(CFLAGS) -O$(optimize) -shared -fPIC -o $(lib-name) scone.o
+	$(CC) $(flags) -O$(optimize) -shared -fPIC -o $(lib-name) scone.o
 
 scone.o: scone.c scone.h
-	$(CC) $(CFLAGS) -O$(optimize) -fPIC -c $< -o $@
+	$(CC) $(flags) -O$(optimize) -fPIC -c $< -o $@
 
 build-tests: $(tests)
 
 tests/%: tests/%.c test-template.h $(lib-name)
-	$(CC) $(CFLAGS) -I. -L. -o $@ $< -l:./$(lib-name)
+	$(CC) $(flags) -I. -L. -o $@ $< -l:./$(lib-name)

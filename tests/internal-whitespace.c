@@ -15,7 +15,6 @@ CREATE_TEST("internal-whitespace", conf)
 {
 	char value[VALSIZE_MAX + 1];
 	size_t keynum, valsize;
-	size_t i;
 
 	assert(scone_read(conf, &keynum, value, &valsize) == 0);
 	assert(keynum == 0);

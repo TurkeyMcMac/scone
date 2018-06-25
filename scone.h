@@ -1,6 +1,10 @@
 #include <stddef.h>
 #include <stdio.h>
 
+/* The interface for parsing scone configuration files.
+ *
+ * NOTE: Unless otherwise stated, all pointers mentioned here cannot be NULL. */
+
 #ifndef _SCONE_STRUCT
 #define _SCONE_STRUCT
 /* The structure to hold the parsing state. */

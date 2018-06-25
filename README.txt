@@ -52,6 +52,8 @@ Character  Description
 'r'        Carriage return
 't'        Horizontal tab
 'v'        Vertical tab
+'xXX'      Insert the byte with the hexidecimal value XX. If only X is provided
+           then the high nibble is '0'.
 newline    Ignore this line break, although still count it in the line counter.
 any other  Ignore this character and move on. For example, \# reduces to '#'.
 

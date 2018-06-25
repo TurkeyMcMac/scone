@@ -1,5 +1,5 @@
 #! /bin/sh
 
-rm -f libscone.so.`cat version`
+make clean
 echo $1 > version
 

@@ -300,6 +300,33 @@ static int parse_pair(struct scone *self,
 	return ret;
 }
 
+int parse_nibble(FILE *file)
+{
+	int ch = fgetc(file);
+	if (ch >= '0' && ch <= '9')
+		return ch - '0';
+	else if (ch >= 'A' && ch <= 'F')
+		return ch - 'A' + 10;
+	else if (ch >= 'a' && ch <= 'f')
+		return ch - 'a' + 10;
+	else
+		return EOF;
+}
+
+int parse_byte(FILE *file)
+{
+	int high_nib, low_nib;
+	high_nib = parse_nibble(file);
+	/* I hope that this ignorance of poor \x formatting doesn't cause too
+	 * many bugs. */
+	if (high_nib == EOF)
+		return '\0';
+	low_nib = parse_nibble(file);
+	if (low_nib == EOF)
+		return high_nib;
+	return (high_nib << 4) | low_nib;
+}
+
 static int escape_char(struct scone *self)
 {
 	int ch;
@@ -320,6 +347,8 @@ static int escape_char(struct scone *self)
 		return '\t';
 	case 'v':
 		return '\v';
+	case 'x':
+		return parse_byte(self->file);
 	case '\n':
 		++self->move_down;
 		return '\0';

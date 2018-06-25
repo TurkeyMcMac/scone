@@ -6,11 +6,12 @@
 #define VALSIZE_MAX 2
 
 #define KEYS_PER_SET 2
-#define N_KEY_SETS 6
+#define N_KEY_SETS 7
 
 #define N_KEYS (KEYS_PER_SET * N_KEY_SETS)
 
 const char *const keys[] = {
+	"\xFa", "\xFa\xFa",
 	"\t", "\t\t",
 	"\n", "\n\n",
 	"\r", "\r\r",

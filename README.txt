@@ -39,6 +39,22 @@ words is kept, while leading and trailing whitespace is removed.
 On line (c), the value contains quotes. These have no special meaning to the
 parser, and will be carried through to the program.
 
+Several escape sequences, listed below, are supported. They all begin with a
+backslash.
+
+Character  Description
+-------------------------------------------------------------------------------
+'a'        Bell
+'b'        Backspace
+'e'        Escape
+'f'        Form feed
+'n'        New lne
+'r'        Carriage return
+'t'        Horizontal tab
+'v'        Vertical tab
+newline    Ignore this line break, although still count it in the line counter.
+any other  Ignore this character and move on. For example, \# reduces to '#'.
+
 
 API
 ---

@@ -52,9 +52,6 @@ Character  Description
 'r'        Carriage return
 't'        Horizontal tab
 'v'        Vertical tab
-'xXX'      Insert the byte with the hexidecimal value XX. If either digit is not
-           in one of the ranges [0, 9], [A, F], or [a, f], then the code is read
-           as NUL. The parser then discards the invalid characters.
 newline    Ignore this line break, although still count it in the line counter.
 any other  Ignore this character and move on. For example, \# reduces to '#'.
 

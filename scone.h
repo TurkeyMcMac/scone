@@ -5,8 +5,8 @@
  *
  * NOTE: Unless otherwise stated, all pointers mentioned here cannot be NULL. */
 
-#ifndef _SCONE_STRUCT
-#define _SCONE_STRUCT
+#ifndef _SCONE_STRUCTS
+#define _SCONE_STRUCTS
 /* The structure to hold the parsing state. */
 struct scone {
 	/* Pointer to the file which configuration will be read from.
@@ -15,7 +15,7 @@ struct scone {
 	/* List of all valid keys. This list must be ALPHABETIZED! Also take care that
 	 * no key exceeds a size of keysize_max.
 	 * This field can be read or written. */
-	const char *const *keys;
+	const struct scone_key *keys;
 	/* Scratch space used internally. This buffer must be at least
 	 * keysize_max bytes long.
 	 * This field can be read or written, although the contents behind the
@@ -38,7 +38,13 @@ struct scone {
 	 * This value should neither be read nor written. */
 	unsigned move_down;
 };
-#endif /* !defined(_SCONE_STRUCT) */
+
+/* Describes a single valid key. */
+struct scone_key {
+	const char *str;
+	size_t size;
+};
+#endif /* !defined(_SCONE_STRUCTS) */
 
 /* The character between a key and a value which binds them together. */
 #define SCONE_BINDING '='

@@ -7,8 +7,8 @@
 
 #define N_KEYS 1
 
-const char *const keys[] = {
-	"key"
+const struct scone_key keys[] = {
+	{"key", 3}
 };
 
 CREATE_TEST("escape-line-breaks", conf)

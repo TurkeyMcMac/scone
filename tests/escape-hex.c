@@ -5,12 +5,12 @@
 #define KEYSIZE_MAX 3
 #define VALSIZE_MAX 1
 
-#define N_KEY_PAIRS 3
+#define N_KEY_PAIRS 2
 
-#define N_KEYS 2
+#define N_KEYS 1
 
-const char *const keys[] = {
-	"\t", "key"
+const struct scone_key keys[] = {
+	{"key", 3}
 };
 
 CREATE_TEST("escape-hex", conf)

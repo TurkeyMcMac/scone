@@ -1,0 +1,4 @@
+\x00 = _
+\x00\x00 = _
+\x_\\x__\x  = \x	# # Invalid hex codes should be read as NUL.
+key = \x00

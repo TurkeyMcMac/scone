@@ -7,7 +7,3 @@
 # Regular substitution
 key    = \x5F
 k\x65y = _
-
-# Single digit
-\x9 = _
-\t  = _

@@ -7,11 +7,11 @@
 
 #define N_KEYS 4
 
-const char *const keys[] = {
-	"key 0",
-	"key 1",
-	"key 2",
-	"key 3"
+const struct scone_key keys[] = {
+	{"key 0", 5},
+	{"key 1", 5},
+	{"key 2", 5},
+	{"key 3", 5}
 };
 
 CREATE_TEST("lines", conf)

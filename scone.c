@@ -21,6 +21,7 @@ static int parse_pair(struct scone *self,
 	int first_ch,
 	size_t *key,
 	char *value, size_t *valsize);
+#define ESCAPE_NEWLINE (-0xbeef)
 static int escape_char(struct scone *self);
 int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 {
@@ -83,20 +84,26 @@ static int eof_retval(FILE *file)
 }
 
 
-static int compare_key(const char *key, const char *str, size_t len)
+static int compare_key(const char *str, size_t len, const struct scone_key *key)
 {
-	size_t i;
-	for (i = 0; i < len; ++i) {
-		char kc = key[i], sc = str[i];
-		if (kc > sc)
+	size_t compsize, i;
+	compsize = len < key->size ? len : key->size;
+	for (i = 0; i < compsize; ++i) {
+		unsigned kc = key->str[i], sc = str[i];
+		if (sc > kc)
 			return 1;
-		else if (kc < sc)
+		else if (sc < kc)
 			return -1;
 	}
-	return -(str[i] != '\0');
+	if (len < key->size)
+		return -1;
+	else if (len > key->size)
+		return 1;
+	else
+		return 0;
 }
 static size_t binary_search(const char *str, size_t len,
-	const char *const *items, size_t n_items)
+	const struct scone_key *items, size_t n_items)
 {
 	size_t min, mid, max;
 	min = 0;
@@ -104,7 +111,7 @@ static size_t binary_search(const char *str, size_t len,
 	while (min < max) {
 		int cmp;
 		mid = (min + max) / 2;
-		cmp = compare_key(str, items[mid], len);
+		cmp = compare_key(str, len, &items[mid]);
 		if (cmp > 0)
 			min = mid + 1;
 		else if (cmp < 0)
@@ -138,7 +145,7 @@ static int parse_key(struct scone *self, int ch, size_t *key_len)
 			break;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
-			if (!ch)
+			if (ch == ESCAPE_NEWLINE)
 				continue;
 			/* Fallthrough */
 		default:
@@ -167,7 +174,7 @@ static int parse_key(struct scone *self, int ch, size_t *key_len)
 			return SCONE_NO_VALUE;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
-			if (!ch)
+			if (ch == ESCAPE_NEWLINE)
 				break;
 			/* Fallthrough */
 		default:
@@ -198,7 +205,7 @@ static int find_value(struct scone *self, int *first_ch)
 			return SCONE_NO_VALUE;
 		case SCONE_ESCAPE:
 			*first_ch = escape_char(self);
-			if (!*first_ch)
+			if (*first_ch == ESCAPE_NEWLINE)
 				break;
 			/* Fallthrough */
 		default:
@@ -234,7 +241,7 @@ static int parse_value(struct scone *self,
 			return 0;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
-			if (!ch)
+			if (ch == ESCAPE_NEWLINE)
 				continue;
 			/* Fallthrough */
 		default:
@@ -261,7 +268,7 @@ static int parse_value(struct scone *self,
 			return 0;
 		case SCONE_ESCAPE:
 			ch = escape_char(self);
-			if (!ch)
+			if (ch == ESCAPE_NEWLINE)
 				break;
 			/* Fallthrough */
 		default:
@@ -315,15 +322,17 @@ int parse_nibble(FILE *file)
 
 int parse_byte(FILE *file)
 {
-	int high_nib, low_nib;
-	high_nib = parse_nibble(file);
 	/* I hope that this ignorance of poor \x formatting doesn't cause too
 	 * many bugs. */
-	if (high_nib == EOF)
+	int high_nib, low_nib;
+	high_nib = parse_nibble(file);
+	if (high_nib == EOF) {
+		(void)getc(file);
 		return '\0';
+	}
 	low_nib = parse_nibble(file);
 	if (low_nib == EOF)
-		return high_nib;
+		return '\0';
 	return (high_nib << 4) | low_nib;
 }
 
@@ -351,7 +360,7 @@ static int escape_char(struct scone *self)
 		return parse_byte(self->file);
 	case '\n':
 		++self->move_down;
-		return '\0';
+		return ESCAPE_NEWLINE;
 	default:
 		return ch;
 	}

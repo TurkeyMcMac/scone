@@ -10,14 +10,14 @@
 
 #define N_KEYS (KEYS_PER_SET * N_KEY_SETS)
 
-const char *const keys[] = {
-	"\xFa", "\xFa\xFa",
-	"\t", "\t\t",
-	"\n", "\n\n",
-	"\r", "\r\r",
-	" ", "  ",
-	"#", "##",
-	"=", "==",
+const struct scone_key keys[] = {
+	{"\t", 1}, {"\t\t", 2},
+	{"\n", 1}, {"\n\n", 2},
+	{"\r", 1}, {"\r\r", 2},
+	{" ", 1}, {"  ", 2},
+	{"#", 1}, {"##", 2},
+	{"=", 1}, {"==", 2},
+	{"\xFa", 1}, {"\xFa\xFa", 2}
 };
 
 const size_t lengths[KEYS_PER_SET] = {1, 2};

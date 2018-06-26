@@ -1,7 +1,3 @@
-# FF
-\xFa = \xFa
-\xFa\xFa = \xFa\xFa
-
 # Tabs
 \	 = \	
 \	\	 = \	\	
@@ -25,3 +21,8 @@
 # Equals
 \= = \=
 \=\= = \=\=
+
+# FF
+\xFa = \xFa
+\xFa\xFa = \xFa\xFa
+

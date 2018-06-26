@@ -15,7 +15,7 @@ struct scone {
 	/* List of all valid keys. This list must be ALPHABETIZED! Also take care that
 	 * no key exceeds a size of keysize_max.
 	 * This field can be read or written. */
-	const struct scone_key *keys;
+	const char * const *keys;
 	/* Scratch space used internally. This buffer must be at least
 	 * keysize_max bytes long.
 	 * This field can be read or written, although the contents behind the
@@ -37,12 +37,6 @@ struct scone {
 	/* Scratch space used internally during reading.
 	 * This value should neither be read nor written. */
 	unsigned move_down;
-};
-
-/* Describes a single valid key. */
-struct scone_key {
-	const char *str;
-	size_t size;
 };
 #endif /* !defined(_SCONE_STRUCTS) */
 

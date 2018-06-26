@@ -84,26 +84,20 @@ static int eof_retval(FILE *file)
 }
 
 
-static int compare_key(const char *str, size_t len, const struct scone_key *key)
+static int compare_key(const char *str, size_t len, const char *key)
 {
-	size_t compsize, i;
-	compsize = len < key->size ? len : key->size;
-	for (i = 0; i < compsize; ++i) {
-		unsigned kc = key->str[i], sc = str[i];
+	size_t i;
+	for (i = 0; i < len; ++i) {
+		unsigned kc = key[i], sc = str[i];
 		if (sc > kc)
 			return 1;
 		else if (sc < kc)
 			return -1;
 	}
-	if (len < key->size)
-		return -1;
-	else if (len > key->size)
-		return 1;
-	else
-		return 0;
+	return -(key[i] != '\0');
 }
 static size_t binary_search(const char *str, size_t len,
-	const struct scone_key *items, size_t n_items)
+	const char * const *items, size_t n_items)
 {
 	size_t min, mid, max;
 	min = 0;
@@ -111,7 +105,7 @@ static size_t binary_search(const char *str, size_t len,
 	while (min < max) {
 		int cmp;
 		mid = (min + max) / 2;
-		cmp = compare_key(str, len, &items[mid]);
+		cmp = compare_key(str, len, items[mid]);
 		if (cmp > 0)
 			min = mid + 1;
 		else if (cmp < 0)
@@ -356,8 +350,6 @@ static int escape_char(struct scone *self)
 		return '\t';
 	case 'v':
 		return '\v';
-	case 'x':
-		return parse_byte(self->file);
 	case '\n':
 		++self->move_down;
 		return ESCAPE_NEWLINE;

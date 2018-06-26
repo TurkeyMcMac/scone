@@ -7,10 +7,10 @@
 
 #define N_KEYS 3
 
-const struct scone_key keys[] = {
-	{"k  e	 y", 7},
-	{"ke    y", 7},
-	{"key", 3}
+ const char *const keys[] = {
+	"k  e	 y",
+	"ke    y",
+	"key"
 };
 
 CREATE_TEST("internal-whitespace", conf)

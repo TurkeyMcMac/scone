@@ -7,8 +7,8 @@
 
 #define N_KEYS 1
 
-const struct scone_key keys[] = {
-	{"key", 3},
+ const char *const keys[] = {
+	"key",
 };
 
 CREATE_TEST("aft-pad", conf)

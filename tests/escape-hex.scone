@@ -1,9 +1,0 @@
-# Consecutive pairs must evaluate to the same thing.
-
-# Case insensitive
-\x6Bey = _
-\x6bey = _
-
-# Regular substitution
-key    = \x5F
-k\x65y = _

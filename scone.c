@@ -300,10 +300,10 @@ static int parse_pair(struct scone *self,
 	size_t key_len;
 	int ret = 0;
 	self->move_down = 0;
-	(void)((ret = parse_key(self, first_ch, &key_len))
-	   ||  (ret = find_value(self, &first_ch))
-	   ||  (ret = parse_value(self, first_ch, value, valsize))
-	   ||  (ret = find_key(self, key, key_len)));
+	(void)(   (ret = parse_key(self, first_ch, &key_len))
+	       || (ret = find_value(self, &first_ch))
+	       || (ret = parse_value(self, first_ch, value, valsize))
+	       || (ret = find_key(self, key, key_len)));
 	return ret;
 }
 

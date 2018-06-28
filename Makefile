@@ -31,6 +31,10 @@ $(lib-dir)/lib$(name).so: $(lib-dir)/$(lib-name)
 $(lib-dir)/$(lib-name): $(lib-name)
 	sudo cp -f $< $@
 
+.PHONY: uninstall
+uninstall:
+	sudo rm $(lib-dir)/lib$(name).so*
+
 .PHONY: clean
 clean:
 	$(RM) $(lib-name) $(tests)

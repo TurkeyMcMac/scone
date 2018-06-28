@@ -28,8 +28,8 @@ $(include-dir)/scone/scone.h: scone.h
 $(lib-dir)/lib$(name).so: $(lib-dir)/$(lib-name)
 	sudo ln -fsT $< $@
 
-$(lib-dir)/$(lib-name): version
-	sudo cp -f $(lib-name) $(lib-dir)
+$(lib-dir)/$(lib-name): $(lib-name)
+	sudo cp -f $< $@
 
 .PHONY: clean
 clean:

@@ -26,7 +26,7 @@ $(include-dir)/scone/scone.h: scone.h
 	sudo cp -f $< $@
 
 $(lib-dir)/lib$(name).so: $(lib-dir)/$(lib-name)
-	sudo ln -fT $< $@
+	sudo ln -fsT $< $@
 
 $(lib-dir)/$(lib-name): $(lib-name)
 	sudo cp -f $< $@

@@ -29,7 +29,7 @@ $(lib-dir)/lib$(name).so: $(lib-dir)/$(lib-name)
 	sudo ln -fsT $< $@
 
 $(lib-dir)/$(lib-name): $(lib-name)
-	sudo cp -f $< $@
+	sudo ln -fT $< $@
 
 .PHONY: uninstall
 uninstall:

@@ -1,13 +1,13 @@
-key = \
+key : \
 value
 
 key \
-= value
+: value
 
 ke\
-y = value
+y : value
 
-key = va\
+key : va\
 lue
 
 #Comment \

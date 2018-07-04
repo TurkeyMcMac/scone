@@ -1,23 +1,23 @@
 # Tabs
-\	 = \	
-\	\	 = \	\	
+\	 : \	
+\	\	 : \	\	
 
 # Newlines
-\n = \n
-\n\n = \n\n
+\n : \n
+\n\n : \n\n
 
 # Carriage returns
-\r = \r
-\r\r = \r\r
+\r : \r
+\r\r : \r\r
 
 # Spaces
-\  = \ 
-\ \  = \ \ 
+\  : \ 
+\ \  : \ \ 
 
 # Hash tags
-\# = \#
-\#\# = \#\#
+\# : \#
+\#\# : \#\#
 
-# Equals
-\= = \=
-\=\= = \=\=
+# Bindings
+\: : \:
+\:\: : \:\:

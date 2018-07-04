@@ -6,10 +6,12 @@ tempdir=.scone-install
 mkdir $tempdir
 cd $tempdir
 
-curl $source/scone.c  > scone.c
-curl $source/scone.h  > scone.h
-curl $source/version  > version
-curl $source/Makefile > Makefile
+_download() { curl $source/$1  > $1 }
+
+_download scone.c
+_download scone.h
+_download version
+_download Makefile
 
 sudo make install
 

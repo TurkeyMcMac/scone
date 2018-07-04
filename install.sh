@@ -11,9 +11,10 @@ cd $tempdir
 
 _download version
 if [ ! -f /usr/lib/libscone.so.`cat version` ]; then
-	_download scone.c
-	_download scone.h
-	_download Makefile
+	_download scone.c &
+	_download scone.h &
+	_download Makefile &
+	wait
 	sudo make install
 fi
 

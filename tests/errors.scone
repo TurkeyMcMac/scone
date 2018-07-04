@@ -1,23 +1,23 @@
 # BAD_KEY
-keey = _
-= _
-	 = _
+keey : _
+: _
+	 : _
 
 # NO_VALUE
-key = \
+key : \
 # Comment
 key
 key  
-key =
-key =  
-key =# Comment
-key = # Comment
-key# Comment = _
-key # Comment = _
-k# Comment = _
+key :
+key :  
+key :# Comment
+key : # Comment
+key# Comment : _
+key # Comment : _
+k# Comment : _
 
 # LONG_KEY
-keeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeey = _
+keeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeey : _
 
 # LONG_VALUE
-key = ______
+key : ______

@@ -6,33 +6,37 @@ color_echo() {
 	echo "\e[${color}m$*\e[0m"
 }
 
-test_failures=0
+test_failed=.test-failed
 
 run_test() {
 	color_echo 36 Testing \`$1\'
-	$1
+	color_echo 31 "Error log for \`$1':" > $1.errlog
+	$1 2>> $1.errlog
 	status=$?
 	if [ $status -ne 0 ]; then
-		color_echo 31 Test \`$1\' failed with status $status.
-		test_failures=$((test_failures+1))
+		cat $1.errlog
+		touch $test_failed
 	else
 		color_echo 32 Test \`$1\' succeeded.
 	fi
+	rm $1.errlog
 }
 
 if ! make || ! make build-tests; then
 	color_echo '30;43' Test compilation failed.
-	exit 255
+	exit 2
 fi
 
 for t in tests/*.test; do
-	run_test $t
+	run_test $t &
 done
+wait
 
-if [ $test_failures -eq 0 ]; then
-	color_echo '30;42' All tests succeeded.
+if [ -f $test_failed ]; then
+	color_echo '30;41' Some tests failed.
+	rm $test_failed
+	exit 1
 else
-	color_echo '30;41' $test_failures tests failed.
+	color_echo '30;42' All tests succeeded.
+	exit 0
 fi
-
-exit $test_failures

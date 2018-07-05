@@ -25,10 +25,10 @@ Following is an example of a valid file. Letters in parentheses at the
 beginnings of lines are not part of this hypothetical file.
 
 (a)	# Known information:
-(b)	Name           = John Doe
-	Birth date     = 02-03-1984
-(c)	Height         = 8'11"
-	Favorite color = yellow
+(b)	Name:           John Doe
+	Birth date:     02-03-1984
+(c)	Height:         8'11"
+	Favorite color: yellow
 
 (a) shows the syntax for comments, which extend to the end of the line.
 

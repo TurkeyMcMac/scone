@@ -1,12 +1,11 @@
 set -ex
 
 source=https://raw.githubusercontent.com/TurkeyMcMac/scone/master
-tempdir=.scone-install
+tempdir=`mktemp -d`
 _download() {
 	curl -s $source/$1  > $1
 }
 
-mkdir $tempdir
 cd $tempdir
 
 _download version

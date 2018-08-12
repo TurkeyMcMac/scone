@@ -17,7 +17,7 @@ CREATE_TEST("empty-keys", conf)
 	size_t keynum, valsize;
 	size_t i;
 
-	for (i = 0; i < 5; ++i)
+	for (i = 0; i < 4; ++i)
 		assert(scone_read(conf, &keynum, value, &valsize) == 0);
 
 	assert(scone_read(conf, &keynum, value, &valsize) == SCONE_DONE);

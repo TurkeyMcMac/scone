@@ -21,6 +21,4 @@ CREATE_TEST("empty-keys", conf)
 		assert(scone_read(conf, &keynum, value, &valsize) == 0);
 
 	assert(scone_read(conf, &keynum, value, &valsize) == SCONE_DONE);
-
-	assert(conf->line == 8);
 }

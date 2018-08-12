@@ -57,9 +57,6 @@ int scone_read(struct scone *self, size_t *key, char *value, size_t *valsize)
 				continue;
 		case EOF:
 			return eof_retval(self->file);
-		case SCONE_BINDING:
-			skip_line(self->file, &self->line);
-			return SCONE_BAD_KEY;
 		default:
 			self->line += self->move_down;
 			*valsize = 0;

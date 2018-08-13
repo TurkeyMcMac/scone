@@ -1,7 +1,7 @@
 #! /bin/sh
 
 color_echo() {
-	color=$1
+	color="$1"
 	shift
 	echo "\e[${color}m$*\e[0m"
 }
@@ -10,16 +10,16 @@ test_failed=.test-failed
 
 run_test() {
 	color_echo 36 Testing \`$1\'
-	color_echo 31 "Error log for \`$1':" > $1.errlog
-	$1 2>> $1.errlog
+	color_echo 31 "Error log for \`$1':" > "$1.errlog"
+	"$1" 2>> "$1.errlog"
 	status=$?
 	if [ $status -ne 0 ]; then
-		cat $1.errlog
+		cat "$1.errlog"
 		touch $test_failed
 	else
 		color_echo 32 Test \`$1\' succeeded.
 	fi
-	rm $1.errlog
+	rm "$1.errlog"
 }
 
 if ! make || ! make build-tests; then
@@ -28,7 +28,7 @@ if ! make || ! make build-tests; then
 fi
 
 for t in tests/*.test; do
-	run_test $t &
+	run_test "$t" &
 done
 wait
 

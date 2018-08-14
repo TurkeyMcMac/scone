@@ -17,7 +17,7 @@ FILE FORMAT
 Scone files consist only of comments and key-value pairs. Key-value span one
 line each and have the following format:
 
-<key> = <value>
+<key>: <value>
 
 Comments can be on the same line as a key-value pair after the end of the value.
 
